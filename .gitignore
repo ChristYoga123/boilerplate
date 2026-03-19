@@ -1,0 +1,43 @@
+# Go build artifacts
+bin/
+cmd/**/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go build cache & modules
+*.test
+*.out
+coverage.*
+vendor/
+
+# Local env/config
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+
+# Node / frontend (if present in repo root)
+node_modules/
+dist/
+build/
+
