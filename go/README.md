@@ -17,6 +17,12 @@ A small Go REST API boilerplate built with:
   - `SuccessResponse`: `{ "success": true, "message": "...", "data": ... }`
   - `ErrorResponse`: `{ "success": false, "message": "...", "errors": { ... } }` (optional)
 
+## API Documentation
+
+Full OpenAPI 3.0 (Swagger) spec: [`documentation/api.yaml`](documentation/api.yaml)
+
+You can import it directly into [Swagger Editor](https://editor.swagger.io) or Postman.
+
 ## Base URL
 
 - All endpoints are under: `/api/v1`
@@ -27,50 +33,38 @@ A small Go REST API boilerplate built with:
 
 `POST /api/v1/auth/register`
 
-- Request body (`RegisterRequest`):
-  - `username` (required, string)
-  - `email` (required, valid email)
-  - `password` (required, string)
-- Responses:
-  - `201`: user created (`RegisterResponse`)
-  - `409`: duplicate username/email (when detected)
-  - `400`: validation errors
+- Request body: `username`, `email`, `password`
+- `201`: user created | `400`: validation errors | `409`: duplicate username/email
 
 `POST /api/v1/auth/login`
 
-- Request body (`LoginRequest`):
-  - `email` (required, valid email)
-  - `password` (required, string)
-- Responses:
-  - `200`: returns JWT token (`LoginResponse`)
-  - `401`: invalid credentials
+- Request body: `email`, `password`
+- `200`: returns JWT token | `401`: invalid credentials
+
+`POST /api/v1/auth/refresh`
+
+- Requires: `Authorization: Bearer <token>`
+- Issues a new token and invalidates the old one.
+- `200`: new JWT token | `401`: unauthorized
 
 ### Users (Protected)
 
-All endpoints below require an `Authorization` header:
-
-- `Authorization: Bearer <token>`
+All endpoints below require `Authorization: Bearer <token>`.
 
 `PUT /api/v1/users/me`
 
-- Middleware stores `user_id` in Gin context after validating the JWT and checking token activity in Redis.
-- Request body (`UpdateUserRequest`):
-  - `username` (required)
-  - `email` (required, valid email)
-  - `password` (required)
-- Response:
-  - `200`: updated user (`UpdateUserResponse`)
+- Request body: `username`, `email`, `password`
+- `200`: updated user | `400`: validation errors
 
 `DELETE /api/v1/users/me`
 
-- Response:
-  - `200`: deleted user (`DeleteUserResponse`)
+- Soft-deletes the current user.
+- `200`: deleted user
 
 `POST /api/v1/users/logout`
 
-- Invalidates the current JWT token by deleting the Redis key for that user.
-- Response:
-  - `200`: logout success
+- Invalidates the current JWT token in Redis.
+- `200`: logged out
 
 ## Request Validation & Error Format
 

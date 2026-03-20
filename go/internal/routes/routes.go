@@ -14,6 +14,7 @@ func SetupRoutes(r *gin.Engine, userCtrl *controllers.UserController, jwtSvc ser
 	{
 		auth.POST("/register", userCtrl.Register)
 		auth.POST("/login", userCtrl.Login)
+		auth.POST("/refresh", middlewares.AuthMiddleware(jwtSvc), userCtrl.RefreshToken)
 	}
 
 	user := api.Group("/users")

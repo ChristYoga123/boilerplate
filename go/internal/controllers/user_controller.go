@@ -118,6 +118,23 @@ func (ctrl *UserController) DeleteUser(c *gin.Context) {
 	})
 }
 
+func (ctrl *UserController) RefreshToken(c *gin.Context) {
+	userID := c.GetUint("user_id")
+	token, err := ctrl.jwtService.GenerateToken(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, responses.SuccessResponse{
+		Success: true,
+		Message: "Token refreshed successfully",
+		Data:    gin.H{"token": token},
+	})
+}
+
 func (ctrl *UserController) Logout(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	if err := ctrl.jwtService.InvalidateToken(context.Background(), userID); err != nil {
