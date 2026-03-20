@@ -37,7 +37,7 @@ func NewAppConfig() *AppConfig {
 		DBName:         getEnv("DB_NAME", "go_project"),
 		AppEnv:         getEnv("APP_ENV", "local"),
 		DBDriver:       getEnv("DB_DRIVER", "sqlite"),
-		DBDsn:          getEnv("DB_DSN", "database.db"),
+		DBDsn:          getEnv("DB_DSN", ""),
 		DBHost:         getEnv("DB_HOST", ""),
 		DBUser:         getEnv("DB_USER", ""),
 		DBPassword:     getEnv("DB_PASSWORD", ""),

@@ -14,7 +14,11 @@ func NewDatabase(c *AppConfig) (*gorm.DB, error) {
 
 	switch c.DBDriver {
 	case "sqlite":
-		dialector = sqlite.Open(c.DBDsn)
+		dsn := c.DBDsn
+		if dsn == "" {
+			dsn = "database.db"
+		}
+		dialector = sqlite.Open(dsn)
 	case "mysql":
 		dsn := c.DBDsn
 		if dsn == "" {
