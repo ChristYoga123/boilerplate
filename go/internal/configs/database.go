@@ -16,9 +16,19 @@ func NewDatabase(c *AppConfig) (*gorm.DB, error) {
 	case "sqlite":
 		dialector = sqlite.Open(c.DBDsn)
 	case "mysql":
-		dialector = mysql.Open(c.DBDsn)
+		dsn := c.DBDsn
+		if dsn == "" {
+			dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+				c.DBUser, c.DBPassword, c.DBHost, c.DBPort, c.DBName)
+		}
+		dialector = mysql.Open(dsn)
 	case "postgres":
-		dialector = postgres.Open(c.DBDsn)
+		dsn := c.DBDsn
+		if dsn == "" {
+			dsn = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
+				c.DBHost, c.DBUser, c.DBPassword, c.DBName, c.DBPort)
+		}
+		dialector = postgres.Open(dsn)
 	default:
 		return nil, fmt.Errorf("invalid database driver: %s", c.DBDriver)
 	}
