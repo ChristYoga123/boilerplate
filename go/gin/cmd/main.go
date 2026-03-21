@@ -35,10 +35,11 @@ func main() {
 	userRepo := repositories.NewUserRepository(db)
 	jwtSvc := services.NewJWTService(cfg, rdb)
 	userSvc := services.NewUserService(userRepo, jwtSvc)
-	userCtrl := controllers.NewUserController(userSvc, jwtSvc)
+	authCtrl := controllers.NewAuthController(userSvc, jwtSvc)
+	userCtrl := controllers.NewUserController(userSvc)
 
 	router := gin.Default()
-	routes.SetupRoutes(router, userCtrl, jwtSvc)
+	routes.SetupRoutes(router, authCtrl, userCtrl, jwtSvc)
 
 	addr := fmt.Sprintf(":%d", cfg.AppPort)
 	if err := router.Run(addr); err != nil {

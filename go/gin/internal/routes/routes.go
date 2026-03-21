@@ -7,14 +7,14 @@ import (
 	"go-project/internal/services"
 )
 
-func SetupRoutes(r *gin.Engine, userCtrl *controllers.UserController, jwtSvc services.JWTServiceInterface) {
+func SetupRoutes(r *gin.Engine, authCtrl *controllers.AuthController, userCtrl *controllers.UserController, jwtSvc services.JWTServiceInterface) {
 	api := r.Group("/api/v1")
 
 	auth := api.Group("/auth")
 	{
-		auth.POST("/register", userCtrl.Register)
-		auth.POST("/login", userCtrl.Login)
-		auth.POST("/refresh", middlewares.AuthMiddleware(jwtSvc), userCtrl.RefreshToken)
+		auth.POST("/register", authCtrl.Register)
+		auth.POST("/login", authCtrl.Login)
+		auth.POST("/refresh", middlewares.AuthMiddleware(jwtSvc), authCtrl.RefreshToken)
 	}
 
 	user := api.Group("/users")
@@ -22,6 +22,6 @@ func SetupRoutes(r *gin.Engine, userCtrl *controllers.UserController, jwtSvc ser
 	{
 		user.PUT("/me", userCtrl.UpdateUser)
 		user.DELETE("/me", userCtrl.DeleteUser)
-		user.POST("/logout", userCtrl.Logout)
+		user.POST("/logout", authCtrl.Logout)
 	}
 }
