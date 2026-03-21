@@ -116,4 +116,5 @@ The server listens on `:${APP_PORT}`.
 ## Notes
 
 - This project invalidates tokens by deleting the Redis value for the user. If you issue a new token, the previous token becomes inactive.
+- Soft delete uses unix timestamp (`deleted_at = 0` means active, non-zero means deleted) via `gorm.io/plugin/soft_delete`. This allows composite unique indexes `(email, deleted_at)` and `(username, deleted_at)` to work correctly in MySQL — a previously deleted user can re-register with the same email/username.
 
