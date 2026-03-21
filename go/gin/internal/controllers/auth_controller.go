@@ -89,7 +89,7 @@ func (ctrl *AuthController) RefreshToken(c *gin.Context) {
 	c.JSON(http.StatusOK, responses.SuccessResponse{
 		Success: true,
 		Message: "Token refreshed successfully",
-		Data:    gin.H{"token": token},
+		Data:    responses.LoginResponse{Token: token},
 	})
 }
 
