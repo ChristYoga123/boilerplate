@@ -1,16 +1,17 @@
 @extends('layouts.admin.form', [
-    'action' => isset($user) ? route('admin.users.update', $user) : route('admin.users.store'),
-    'method' => isset($user) ? 'PUT' : 'POST',
+    'action'    => route('admin.profile.update'),
+    'method'    => 'PUT',
+    'multipart' => true,
 ])
 
 @section('form_content')
-    <x-admin.form.section title="Informasi Pengguna">
+    <x-admin.form.section title="Informasi Profil">
         <x-admin.form.grid cols="2">
             <x-admin.form.text-input
                 name="name"
                 label="Nama"
                 placeholder="Masukkan nama"
-                :value="$user->name ?? ''"
+                :value="$user->name"
                 required
             />
             <x-admin.form.text-input
@@ -18,36 +19,33 @@
                 type="email"
                 label="Email"
                 placeholder="Masukkan email"
-                :value="$user->email ?? ''"
+                :value="$user->email"
                 required
             />
         </x-admin.form.grid>
-        <x-admin.form.grid cols="1">
-            <x-admin.form.select2
-                name="roles[]"
-                label="Pilih Role"
-                :options="$roles ?? []"
-                :value="isset($user) ? $user->roles->pluck('id')->toArray() : []"
-                required
-                multiple
-            />
 
+        <x-admin.form.grid cols="1">
+            <x-admin.form.file-input
+                name="avatar"
+                label="Foto Profil"
+                accept="image/*"
+                :currentImages="$user->avatar ? [asset('storage/' . $user->avatar)] : []"
+            />
         </x-admin.form.grid>
+
         <x-admin.form.grid cols="2">
             <x-admin.form.text-input
                 name="password"
                 type="password"
-                label="Password"
-                placeholder="Masukkan password"
-                :required="!isset($user)"
+                label="Password Baru"
+                placeholder="Kosongkan jika tidak diubah"
                 revealable
             />
             <x-admin.form.text-input
                 name="password_confirmation"
                 type="password"
-                label="Konfirmasi Password"
-                placeholder="Ulangi password"
-                :required="!isset($user)"
+                label="Konfirmasi Password Baru"
+                placeholder="Ulangi password baru"
             />
         </x-admin.form.grid>
     </x-admin.form.section>

@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(curl -s -L -b /tmp/cookies.txt -c /tmp/cookies.txt 'http://127.0.0.1:8000/admin/users' 2>/dev/null | head -200)",
-      "Bash(grep -l \"table\\\\|datatable\" /Users/mac/Projects/boilerplate/laravel/blade/resources/templates/*.html | xargs grep -l \"card-header\" 2>/dev/null | head -3)"
+      "Bash(grep -l \"table\\\\|datatable\" /Users/mac/Projects/boilerplate/laravel/blade/resources/templates/*.html | xargs grep -l \"card-header\" 2>/dev/null | head -3)",
+      "mcp__plugin_claude-mem_mcp-search__smart_outline",
+      "Bash(php artisan:*)"
     ]
   }
 }

@@ -45,7 +45,7 @@
             <button
                 class="btn btn-outline-secondary"
                 type="button"
-                onclick="(function(btn){const input = btn.closest('.input-group').querySelector('input'); if(!input) return; const isPwd = input.type === 'password'; input.type = isPwd ? 'text' : 'password'; btn.querySelector('[data-eye-open]').classList.toggle('d-none', !isPwd); btn.querySelector('[data-eye-close]').classList.toggle('d-none', isPwd); })(this)"
+                onclick="let $input = $(this).closest('.input-group').find('input'); let isPwd = $input.attr('type') === 'password'; $input.attr('type', isPwd ? 'text' : 'password'); $(this).find('[data-eye-open]').toggleClass('d-none', !isPwd); $(this).find('[data-eye-close]').toggleClass('d-none', isPwd);"
             >
                 <span data-eye-open>
                     <i class="feather-eye"></i>

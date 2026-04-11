@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 
 class UserController extends AdminController implements HasMiddleware
 {
@@ -26,9 +27,12 @@ class UserController extends AdminController implements HasMiddleware
             ->pluck('name', 'name')
             ->toArray();
 
+        $roleOptions = Role::pluck('name', 'id')->toArray();
+
         return $dataTable->render('pages.admin.users.index', [
             'title'       => 'Pengguna',
             'nameOptions' => $nameOptions,
+            'roleOptions' => $roleOptions,
         ]);
     }
 
@@ -36,6 +40,7 @@ class UserController extends AdminController implements HasMiddleware
     {
         return view('pages.admin.users.form', [
             'title' => 'Tambah Pengguna',
+            'roles' => Role::pluck('name', 'id')->toArray(),
         ]);
     }
 
@@ -45,11 +50,15 @@ class UserController extends AdminController implements HasMiddleware
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email:dns', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::defaults()],
+            'roles' => ['required', 'array'],
+            'roles.*' => ['exists:roles,id'],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+        $user = User::create($validated);
 
-        User::create($validated);
+        // Assign to Roles
+        $user->assignRole(array_map('intval', $validated['roles']));
 
         return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil ditambahkan.');
     }
@@ -59,6 +68,7 @@ class UserController extends AdminController implements HasMiddleware
         return view('pages.admin.users.form', [
             'title' => 'Edit Pengguna',
             'user' => $user,
+            'roles' => Role::pluck('name', 'id')->toArray(),
         ]);
     }
 
@@ -68,6 +78,8 @@ class UserController extends AdminController implements HasMiddleware
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email:dns', Rule::unique('users', 'email')->ignore($user->id)],
             'password' => ['nullable', 'confirmed', Password::defaults()],
+            'roles' => ['required', 'array'],
+            'roles.*' => ['exists:roles,id'],
         ]);
 
         if (!empty($validated['password'])) {
@@ -77,6 +89,9 @@ class UserController extends AdminController implements HasMiddleware
         }
 
         $user->update($validated);
+
+        // Sync Roles
+        $user->syncRoles(array_map('intval', $validated['roles']));
 
         return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil diperbarui.');
     }

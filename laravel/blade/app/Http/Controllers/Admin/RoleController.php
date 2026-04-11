@@ -28,6 +28,7 @@ class RoleController extends AdminController implements HasMiddleware
     {
         return view('pages.admin.roles.form', [
             'title'       => 'Tambah Role',
+            'roles' => Role::all()->pluck('name', 'id')->toArray(),
             'permissions' => Permission::orderBy('name')->get(),
         ]);
     }

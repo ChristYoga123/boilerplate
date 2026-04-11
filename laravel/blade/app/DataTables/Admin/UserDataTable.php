@@ -19,6 +19,17 @@ class UserDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
+            ->addColumn('roles', function (User $user) {
+                if ($user->roles->isEmpty()) {
+                    return '-';
+                }
+                return '<ul class="mb-0 ps-3"><li>' . $user->roles->pluck('name')->implode('</li><li>') . '</li></ul>';
+            })
+            ->filterColumn('roles', function($query, $keyword) {
+                $query->whereHas('roles', function($q) use ($keyword) {
+                    $q->where('roles.id', $keyword);
+                });
+            })
             ->addColumn('action', function (User $user) {
                 $edit = view('components.admin.table.edit-button', [
                     'href'       => route('admin.users.edit', $user),
@@ -33,7 +44,7 @@ class UserDataTable extends DataTable
 
                 return '<div class="hstack gap-2 justify-content-end">' . $edit . $delete . '</div>';
             })
-            ->rawColumns(['action'])
+            ->rawColumns(['action', 'roles'])
             ->setRowId('id');
     }
 
@@ -76,6 +87,7 @@ class UserDataTable extends DataTable
         return [
             Column::make('name')->title('Nama'),
             Column::make('email')->title('Email'),
+            Column::make('roles')->title('Peran'),
             Column::computed('action')
                 ->title('Aksi')
                 ->exportable(false)

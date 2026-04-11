@@ -5,6 +5,7 @@
     'options' => [],
     'tableId' => '',
     'column' => 0,
+    'cols' => 3,
 ])
 
 @php
@@ -12,7 +13,7 @@
     $tableId  = ltrim($tableId, '#');
 @endphp
 
-<div class="mb-3">
+<div class="col-md-{{ $cols }}">
     @if($label)
         <label for="{{ $filterId }}" class="form-label">{{ $label }}</label>
     @endif

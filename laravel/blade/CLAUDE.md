@@ -49,7 +49,7 @@ This is a **Laravel 12 + Blade** admin panel boilerplate with a clear admin/fron
 - `routes/web.php` — public routes; includes `routes/admin.php`
 - `routes/admin.php` — all admin routes under `/admin` prefix with `admin.` name prefix
   - Guest-only: `GET/POST /admin/login`
-  - Auth-only: `GET /admin` (dashboard), `GET /admin/users`, `POST /admin/logout`
+  - Auth-only: `GET /admin` (dashboard), `GET /admin/users` (resource), `GET /admin/roles` (resource), `POST /admin/logout`
 
 ### Directory Conventions
 
@@ -67,25 +67,68 @@ Controllers, views, DataTables, and middleware are all namespaced under `Admin/`
 ### View Layers
 
 **Layouts** (`resources/views/layouts/admin/`):
-- `app.blade.php` — authenticated admin layout (sidebar, header, main content area); uses `@yield('content')` and `@stack('scripts')`/`@stack('styles')`
+- `app.blade.php` — authenticated admin layout; uses `@yield('content')` and `@stack('scripts')`/`@stack('styles')`
 - `guest.blade.php` — unauthenticated layout (login page)
-- `form.blade.php` — form-focused layout
+- `form.blade.php` — wraps a `<form>` and yields `form_content`; pass `action`, `method`, and optionally `multipart` (boolean) via `@extends`. Renders a default Save/Cancel footer unless `form_footer` section is defined.
 - `partials/` — sidebar, sidebar-menu, header, footer
 
 **Blade Components** (`resources/views/components/admin/`):
-- `ui/` — `button`, `breadcrumb`, `title`, `widget`, `sweetalert`
-- `form/` — `text-input`, `checkbox`
-- `table/` — `button`, `datatable`
 
-Components are referenced as `<x-admin.ui.sweetalert />`, `<x-admin.form.text-input />`, etc.
+`ui/` — `button`, `breadcrumb`, `title`, `widget`, `sweetalert`, `modal`, `container`
+
+`form/`:
+- `text-input` — props: `name`, `type`, `label`, `placeholder`, `value`, `required`, `revealable` (toggle visibility for password fields)
+- `select2` — Select2-powered dropdown; props: `name`, `label`, `options` (assoc array `value => label`), `value`, `required`, `multiple`, `placeholder`
+- `file-input` — file upload field
+- `checkbox` — single checkbox
+- `section` — titled section wrapper for grouping form fields
+- `grid` — responsive grid wrapper; prop: `cols` (number of columns)
+
+`table/`:
+- `filters` — wrapper row for DataTable filter controls
+- `select-filter` — column filter dropdown (Select2); props: `name`, `label`, `options`, `tableId` (without `#`), `column` (DataTable column index), `cols` (Bootstrap col width, default 3)
+- `date-filter` — single date column filter
+- `date-range-filter` — date range column filter
+- `edit-button`, `delete-button` — action buttons for table rows
+- `container` — table section wrapper
+
+Components are referenced as `<x-admin.ui.sweetalert />`, `<x-admin.form.text-input />`, `<x-admin.table.select-filter />`, etc.
 
 ### DataTables Pattern
 
 Server-side tables use **yajra/laravel-datatables**. Each resource has a dedicated DataTable class in `app/DataTables/Admin/`. The controller injects the DataTable and calls `$dataTable->render('view.path', $data)`. The view renders the table with `{!! $dataTable->table() !!}` and pushes scripts with `{!! $dataTable->scripts() !!}`.
 
+### Permission Middleware Pattern
+
+All admin resource controllers extend `AdminController` and implement `HasMiddleware`. Permissions are wired via the static helper:
+
+```php
+public static function middleware(): array
+{
+    return static::permissionsFor('users');
+    // generates middleware for users.index, users.create, users.store, users.edit, users.update, users.destroy
+}
+```
+
+`permissionsFor(string $resource, array $extra = [], bool $withDefaults = true)` — pass `$extra` to protect additional actions, or `$withDefaults = false` to skip the standard CRUD set.
+
 ### Roles & Permissions
 
 Uses **spatie/laravel-permission**. The `User` model has the `HasRoles` trait. Permissions follow the `resource.action` convention (e.g., `users.index`, `users.create`). `RolePermissionSeeder` creates an `admin` role and seeds the default admin user (`admin@gmail.com` / `password`).
+
+### Adding a New Admin Resource
+
+Checklist when adding a new resource (e.g., `posts`):
+
+1. **Controller** — extend `AdminController`, implement `HasMiddleware`, call `static::permissionsFor('posts')`
+2. **DataTable** — create `app/DataTables/Admin/PostDataTable.php` extending `Yajra\DataTables\Services\DataTable`
+3. **Routes** — add `Route::resource('posts', PostController::class)->except(['show'])` inside the `AuthMiddleware` group in `routes/admin.php`
+4. **Views** — create `resources/views/pages/admin/posts/index.blade.php` and `form.blade.php`
+5. **Permissions** — add the new permission slugs to `RolePermissionSeeder` and re-seed
+
+### Language
+
+UI strings are in **Indonesian** (e.g., "Pengguna" = Users, "Tambah" = Add, "Simpan" = Save, "Batal" = Cancel). Keep new UI text consistent with this.
 
 ### Asset Stack
 
