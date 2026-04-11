@@ -78,11 +78,14 @@ Controllers, views, DataTables, and middleware are all namespaced under `Admin/`
 
 `form/`:
 - `text-input` — props: `name`, `type`, `label`, `placeholder`, `value`, `required`, `revealable` (toggle visibility for password fields)
+- `textarea` — props: `name`, `label`, `placeholder`, `value`, `required`, `rows` (default 4)
+- `rich-editor` — Quill 1.3.7 WYSIWYG; props: `name`, `label`, `value`, `required`, `placeholder`, `height` (px, default 250). Syncs to a hidden `<textarea>` for form submission. XSS-safe client-side (Quill Delta sanitizes input); **server-side**: strip with `strip_tags()` or `mews/purifier` before persisting. Quill JS/CSS loaded via CDN using `@stack('styles'/'scripts')`.
 - `select2` — Select2-powered dropdown; props: `name`, `label`, `options` (assoc array `value => label`), `value`, `required`, `multiple`, `placeholder`
-- `file-input` — file upload field
+- `file-input` — file upload with image preview; props: `name`, `label`, `required`, `accept`, `preview`, `multiple`, `currentImages` (array of URLs for existing images)
 - `checkbox` — single checkbox
 - `section` — titled section wrapper for grouping form fields
 - `grid` — responsive grid wrapper; prop: `cols` (number of columns)
+- `repeater` — dynamic add/remove rows; props: `name`, `label`, `addLabel`, `minItems`, `maxItems`, `initialCount`. Child fields use **plain names** (`name="label"`) — JS auto-prefixes them as `repeaterName[index][label]`. Nested (`name="meta[key]"`) and multiple (`name="tags[]"`) names are handled. Select2 inside rows is auto-reinitialised. Rich-editor inside repeater is **not** supported (use `textarea` instead).
 
 `table/`:
 - `filters` — wrapper row for DataTable filter controls
