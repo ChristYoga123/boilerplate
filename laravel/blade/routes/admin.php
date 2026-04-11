@@ -15,7 +15,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 
     Route::middleware(AuthMiddleware::class)->group(function () {
-        Route::get('/', [DashboardController::class, 'view'])->name('dashboard');
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
         Route::resource('users', UserController::class)->except(['show']);

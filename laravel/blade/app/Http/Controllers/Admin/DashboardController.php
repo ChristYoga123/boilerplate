@@ -9,10 +9,10 @@ class DashboardController extends AdminController implements HasMiddleware
 {
     public static function middleware(): array
     {
-        return static::permissionsFor('dashboard', ['view'], false);
+        return static::permissionsFor('dashboard');
     }
 
-    public function view()
+    public function index()
     {
         return view('pages.admin.dashboard.index', [
             'title' => 'Dashboard',

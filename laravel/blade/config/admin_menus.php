@@ -5,7 +5,7 @@ return [
         'title' => 'Dashboard',
         'icon' => 'feather-airplay',
         'route' => 'admin.dashboard',
-        'can' => ['dashboard.view'],
+        'can' => ['dashboard.index'],
     ],
     [
         'title' => 'Master',

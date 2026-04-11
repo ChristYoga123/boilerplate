@@ -25,7 +25,7 @@ class RolePermissionSeeder extends Seeder
         /**
          * Create Permissions by Resources
          */
-        $this->createPermissionsByResources('dashboard', ['view']);
+        $this->createPermissionsByResources('dashboard', ['index']);
         $this->createPermissionsByResources('users', ['*']);
         $this->createPermissionsByResources('roles', ['*']);
         // ... register other permissions by resources here
