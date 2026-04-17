@@ -52,7 +52,7 @@ func (s *JWTService) RefreshToken(ctx context.Context, userID uint, sessionID st
 
 func (s *JWTService) issueToken(ctx context.Context, userID uint, sessionID string) (string, error) {
 	expiry := time.Duration(s.cfg.JWTExpiryHours) * time.Hour
-	tokenID, err := generateTokenID()
+	tokenID, err := generateRandomID()
 	if err != nil {
 		return "", err
 	}
@@ -66,6 +66,7 @@ func (s *JWTService) issueToken(ctx context.Context, userID uint, sessionID stri
 			ID:        tokenID,
 		},
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenStr, err := token.SignedString([]byte(s.cfg.JWTSecret))
 	if err != nil {
@@ -79,7 +80,7 @@ func (s *JWTService) issueToken(ctx context.Context, userID uint, sessionID stri
 }
 
 func (s *JWTService) ValidateToken(tokenStr string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(t *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
@@ -88,6 +89,7 @@ func (s *JWTService) ValidateToken(tokenStr string) (*Claims, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	claims, ok := token.Claims.(*Claims)
 	if !ok || !token.Valid {
 		return nil, fmt.Errorf("invalid token")
@@ -112,10 +114,6 @@ func (s *JWTService) IsTokenActive(ctx context.Context, userID uint, sessionID, 
 
 func sessionKey(userID uint, sessionID string) string {
 	return fmt.Sprintf("jwt:user:%d:session:%s", userID, sessionID)
-}
-
-func generateTokenID() (string, error) {
-	return generateRandomID()
 }
 
 func generateRandomID() (string, error) {

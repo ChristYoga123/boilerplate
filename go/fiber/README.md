@@ -1,8 +1,8 @@
-# Go Project (Gin + GORM + JWT + Redis)
+# Go Project (Fiber + GORM + JWT + Redis)
 
 A small Go REST API boilerplate built with:
 
-- `gin-gonic/gin` for HTTP routing
+- `gofiber/fiber/v3` for HTTP routing
 - `gorm` for database access (SQLite/MySQL/PostgreSQL)
 - `bcrypt` for password hashing
 - JWT for authentication
@@ -13,6 +13,7 @@ A small Go REST API boilerplate built with:
 - Register and login with hashed passwords
 - JWT authentication for protected user routes
 - Logout by invalidating only the current token session in Redis
+- Graceful shutdown with startup config validation
 - Standardized response format:
   - `SuccessResponse`: `{ "success": true, "message": "...", "data": ... }`
   - `ErrorResponse`: `{ "success": false, "message": "...", "errors": { ... } }` (optional)
@@ -20,8 +21,6 @@ A small Go REST API boilerplate built with:
 ## API Documentation
 
 Full OpenAPI 3.0 (Swagger) spec: [`documentation/api.yaml`](documentation/api.yaml)
-
-You can import it directly into [Swagger Editor](https://editor.swagger.io) or Postman.
 
 ## Base URL
 
@@ -66,55 +65,27 @@ All endpoints below require `Authorization: Bearer <token>`.
 - Invalidates the current JWT session in Redis.
 - `200`: logged out
 
-## Request Validation & Error Format
-
-- Validation errors from Gin’s binding/validator are translated into an `errors` map via `helpers.TranslateError`.
-- Duplicate detection is best-effort based on database error messages (e.g. unique constraint violations).
-
 ## Configuration
-
-Configuration is loaded from environment variables using `godotenv.Load()`.
-Because the app loads `.env` at runtime, create `.env` inside `go/` (or export env vars before running).
 
 Key variables:
 
 - `APP_PORT` (default: `8080`)
 - `DB_DRIVER` (default: `sqlite`)
 - `DB_DSN` (default: `database.db`)
-  - For SQLite, the default DSN creates/uses `database.db`.
-  - For MySQL/PostgreSQL, set `DB_DSN` to a proper GORM DSN for your database.
 - `JWT_SECRET` (required, used to sign JWTs)
 - `JWT_EXPIRY_HOURS` (default: `24`)
 - `REDIS_ADDR` (default: `localhost:6379`)
 - `REDIS_PASSWORD` (default: empty)
 - `REDIS_DB` (default: `0`)
 
-An example file is available at `go/.env.example`.
-
 ## Running the Server
 
-From the `go/` directory:
-
-1. Ensure environment variables are set (create `go/.env` based on `go/.env.example`)
-2. Run:
-   - `go mod download`
-   - `go run ./cmd`
-
-The server listens on `:${APP_PORT}`.
-
-## Project Structure
-
-- `go/cmd/main.go`: application bootstrap
-- `go/internal/routes/routes.go`: route registration
-- `go/internal/controllers/*`: HTTP handlers (Gin)
-- `go/internal/services/*`: business logic (user + JWT)
-- `go/internal/repositories/*`: database queries (GORM)
-- `go/internal/middlewares/*`: auth middleware (JWT + Redis token activity)
-- `go/internal/configs/*`: config + DB/Redis setup
-- `go/internal/dtos/*`: request/response models
+1. Create `.env` from `.env.example`
+2. Run `go mod tidy`
+3. Run `go run ./cmd`
 
 ## Notes
 
-- This project tracks active JWTs per session in Redis. Logging out or refreshing invalidates only the current session token, so other logged-in devices can stay active.
-- Soft delete uses unix timestamp (`deleted_at = 0` means active, non-zero means deleted) via `gorm.io/plugin/soft_delete`. This allows composite unique indexes `(email, deleted_at)` and `(username, deleted_at)` to work correctly in MySQL — a previously deleted user can re-register with the same email/username.
+- Active JWTs are tracked per session in Redis. Logging out or refreshing invalidates only the current session token, so other logged-in devices can stay active.
+- Soft delete uses unix timestamp (`deleted_at = 0` means active, non-zero means deleted) via `gorm.io/plugin/soft_delete`.
 - The server supports graceful shutdown. On `SIGINT` (Ctrl+C) or `SIGTERM`, it stops accepting new requests and waits up to 5 seconds for in-flight requests to complete before exiting.

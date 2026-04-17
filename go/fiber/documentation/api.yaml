@@ -1,0 +1,201 @@
+openapi: 3.0.3
+info:
+  title: Go Boilerplate Fiber API
+  description: REST API boilerplate built with Fiber, GORM, JWT, and Redis.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+
+tags:
+  - name: Auth
+    description: Authentication endpoints
+  - name: Users
+    description: Protected user endpoints (requires Bearer token)
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: OK
+        data:
+          nullable: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Validation failed
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+
+    RegisterRequest:
+      type: object
+      required: [username, email, password]
+      properties:
+        username:
+          type: string
+          example: johndoe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          type: string
+          example: secret123
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          type: string
+          example: secret123
+
+    UpdateUserRequest:
+      type: object
+      required: [username, email]
+      properties:
+        username:
+          type: string
+          example: johndoe_new
+        email:
+          type: string
+          format: email
+          example: john_new@example.com
+        password:
+          type: string
+          nullable: true
+          example: newpassword123
+
+    RegisterData:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LoginData:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Validation failed
+        '409':
+          description: Duplicate username or email
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login and get a JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+        '400':
+          description: Validation failed
+        '401':
+          description: Invalid credentials
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh JWT token for the current session
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Token refreshed successfully
+        '401':
+          description: Unauthorized
+
+  /users/me:
+    put:
+      tags: [Users]
+      summary: Update current user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User updated successfully
+        '400':
+          description: Validation failed
+        '401':
+          description: Unauthorized
+    delete:
+      tags: [Users]
+      summary: Delete current user (soft delete)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User deleted successfully
+        '401':
+          description: Unauthorized
+
+  /users/logout:
+    post:
+      tags: [Users]
+      summary: Logout and invalidate the current session token
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logged out successfully
+        '401':
+          description: Unauthorized

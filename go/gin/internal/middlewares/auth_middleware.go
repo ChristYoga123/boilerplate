@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"context"
 	"net/http"
 	"strings"
 
@@ -29,7 +28,7 @@ func AuthMiddleware(jwtSvc services.JWTServiceInterface) gin.HandlerFunc {
 			return
 		}
 		tokenStr := parts[1]
-		userID, err := jwtSvc.ValidateToken(tokenStr)
+		claims, err := jwtSvc.ValidateToken(tokenStr)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{
 				Success: false,
@@ -37,14 +36,15 @@ func AuthMiddleware(jwtSvc services.JWTServiceInterface) gin.HandlerFunc {
 			})
 			return
 		}
-		if !jwtSvc.IsTokenActive(context.Background(), userID, tokenStr) {
+		if !jwtSvc.IsTokenActive(c.Request.Context(), claims.UserID, claims.SessionID, tokenStr) {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{
 				Success: false,
 				Message: "Token has been invalidated",
 			})
 			return
 		}
-		c.Set("user_id", userID)
+		c.Set("user_id", claims.UserID)
+		c.Set("session_id", claims.SessionID)
 		c.Next()
 	}
 }

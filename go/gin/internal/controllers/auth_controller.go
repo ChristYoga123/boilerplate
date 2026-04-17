@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"context"
 	"net/http"
 
 	"go-project/internal/dtos/requests"
@@ -61,7 +60,7 @@ func (ctrl *AuthController) Login(c *gin.Context) {
 		})
 		return
 	}
-	res, err := ctrl.userService.Login(&req)
+	res, err := ctrl.userService.Login(c.Request.Context(), &req)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, responses.ErrorResponse{
 			Success: false,
@@ -78,7 +77,15 @@ func (ctrl *AuthController) Login(c *gin.Context) {
 
 func (ctrl *AuthController) RefreshToken(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	token, err := ctrl.jwtService.GenerateToken(userID)
+	sessionID, ok := getSessionID(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, responses.ErrorResponse{
+			Success: false,
+			Message: "Invalid token session",
+		})
+		return
+	}
+	token, err := ctrl.jwtService.RefreshToken(c.Request.Context(), userID, sessionID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
 			Success: false,
@@ -95,7 +102,15 @@ func (ctrl *AuthController) RefreshToken(c *gin.Context) {
 
 func (ctrl *AuthController) Logout(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	if err := ctrl.jwtService.InvalidateToken(context.Background(), userID); err != nil {
+	sessionID, ok := getSessionID(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, responses.ErrorResponse{
+			Success: false,
+			Message: "Invalid token session",
+		})
+		return
+	}
+	if err := ctrl.jwtService.InvalidateToken(c.Request.Context(), userID, sessionID); err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
 			Success: false,
 			Message: err.Error(),
@@ -107,4 +122,16 @@ func (ctrl *AuthController) Logout(c *gin.Context) {
 		Message: "Logged out successfully",
 		Data:    nil,
 	})
+}
+
+func getSessionID(c *gin.Context) (string, bool) {
+	sessionID, ok := c.Get("session_id")
+	if !ok {
+		return "", false
+	}
+	value, ok := sessionID.(string)
+	if !ok || value == "" {
+		return "", false
+	}
+	return value, true
 }

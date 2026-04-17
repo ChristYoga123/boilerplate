@@ -30,12 +30,13 @@ func NewAppConfig() *AppConfig {
 	dbPort, _ := strconv.Atoi(getEnv("DB_PORT", "3306"))
 	jwtExpiryHours, _ := strconv.Atoi(getEnv("JWT_EXPIRY_HOURS", "24"))
 	redisDB, _ := strconv.Atoi(getEnv("REDIS_DB", "0"))
+
 	return &AppConfig{
 		AppPort:        appPort,
 		DBPort:         dbPort,
 		JWTExpiryHours: jwtExpiryHours,
 		RedisDB:        redisDB,
-		AppName:        getEnv("APP_NAME", "Go Project"),
+		AppName:        getEnv("APP_NAME", "Go Project Fiber"),
 		DBName:         getEnv("DB_NAME", "go_project"),
 		AppEnv:         getEnv("APP_ENV", "local"),
 		DBDriver:       getEnv("DB_DRIVER", "sqlite"),

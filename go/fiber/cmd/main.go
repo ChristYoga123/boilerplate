@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 	"github.com/joho/godotenv"
 	"go-project/internal/configs"
 	"go-project/internal/database"
@@ -40,34 +39,36 @@ func main() {
 		log.Fatalf("failed to connect redis: %v", err)
 	}
 
-	router := gin.Default()
-	routes.SetupRoutes(router, cfg, db, rdb)
+	app := fiber.New(fiber.Config{
+		AppName:      cfg.AppName,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	})
 
-	srv := &http.Server{
-		Addr:              fmt.Sprintf(":%d", cfg.AppPort),
-		Handler:           router,
-		ReadHeaderTimeout: 5 * time.Second,
-		ReadTimeout:       10 * time.Second,
-		WriteTimeout:      10 * time.Second,
-		IdleTimeout:       60 * time.Second,
-	}
+	routes.SetupRoutes(app, cfg, db, rdb)
 
+	errCh := make(chan error, 1)
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("failed to start server: %v", err)
-		}
+		errCh <- app.Listen(fmt.Sprintf(":%d", cfg.AppPort))
 	}()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
 
-	log.Println("shutting down server...")
+	select {
+	case err := <-errCh:
+		if err != nil {
+			log.Fatalf("failed to start server: %v", err)
+		}
+	case <-quit:
+		log.Println("shutting down server...")
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := app.ShutdownWithContext(ctx); err != nil {
 		log.Fatalf("server forced to shutdown: %v", err)
 	}
 

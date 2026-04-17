@@ -81,7 +81,7 @@ components:
 
     UpdateUserRequest:
       type: object
-      required: [username, email, password]
+      required: [username, email]
       properties:
         username:
           type: string
@@ -92,6 +92,7 @@ components:
           example: john_new@example.com
         password:
           type: string
+          nullable: true
           example: newpassword123
 
     RegisterData:
@@ -253,7 +254,7 @@ paths:
   /auth/refresh:
     post:
       tags: [Auth]
-      summary: Refresh JWT token (invalidates old token, issues new one)
+      summary: Refresh JWT token for the current session
       security:
         - BearerAuth: []
       responses:
@@ -375,7 +376,7 @@ paths:
   /users/logout:
     post:
       tags: [Users]
-      summary: Logout and invalidate current token
+      summary: Logout and invalidate the current session token
       security:
         - BearerAuth: []
       responses:

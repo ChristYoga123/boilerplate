@@ -37,14 +37,17 @@ func (s *UserService) Register(request *requests.RegisterRequest) (*responses.Re
 	if err != nil {
 		return nil, err
 	}
+
 	user := &models.User{
 		Username: request.Username,
 		Email:    request.Email,
 		Password: string(hashed),
 	}
+
 	if err := s.userRepository.CreateUser(user); err != nil {
 		return nil, err
 	}
+
 	return &responses.RegisterResponse{
 		ID:        user.ID,
 		Username:  user.Username,
@@ -62,10 +65,12 @@ func (s *UserService) Login(ctx context.Context, request *requests.LoginRequest)
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
 		return nil, errors.New("invalid credentials")
 	}
+
 	token, err := s.jwtService.GenerateToken(ctx, user.ID)
 	if err != nil {
 		return nil, err
 	}
+
 	return &responses.LoginResponse{Token: token}, nil
 }
 
@@ -74,6 +79,7 @@ func (s *UserService) UpdateUser(id uint, request *requests.UpdateUserRequest) (
 	if err != nil {
 		return nil, errors.New("user not found")
 	}
+
 	if request.Password != "" {
 		hashed, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 		if err != nil {
@@ -81,11 +87,13 @@ func (s *UserService) UpdateUser(id uint, request *requests.UpdateUserRequest) (
 		}
 		user.Password = string(hashed)
 	}
+
 	user.Username = request.Username
 	user.Email = request.Email
 	if err := s.userRepository.UpdateUser(user); err != nil {
 		return nil, err
 	}
+
 	return &responses.UpdateUserResponse{
 		ID:        user.ID,
 		Username:  user.Username,
@@ -99,9 +107,11 @@ func (s *UserService) DeleteUser(id uint) (*responses.DeleteUserResponse, error)
 	if err != nil {
 		return nil, errors.New("user not found")
 	}
+
 	if err := s.userRepository.DeleteUser(id); err != nil {
 		return nil, err
 	}
+
 	return &responses.DeleteUserResponse{
 		ID:        user.ID,
 		Username:  user.Username,

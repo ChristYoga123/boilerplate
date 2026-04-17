@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 	"github.com/redis/go-redis/v9"
 	"go-project/internal/configs"
 	"go-project/internal/controllers"
@@ -11,27 +11,22 @@ import (
 	"gorm.io/gorm"
 )
 
-func SetupRoutes(r *gin.Engine, cfg *configs.AppConfig, db *gorm.DB, rdb *redis.Client) {
+func SetupRoutes(app *fiber.App, cfg *configs.AppConfig, db *gorm.DB, rdb *redis.Client) {
 	userRepo := repositories.NewUserRepository(db)
 	jwtSvc := services.NewJWTService(cfg, rdb)
 	userSvc := services.NewUserService(userRepo, jwtSvc)
 	authCtrl := controllers.NewAuthController(userSvc, jwtSvc)
 	userCtrl := controllers.NewUserController(userSvc)
 
-	api := r.Group("/api/v1")
+	api := app.Group("/api/v1")
 
 	auth := api.Group("/auth")
-	{
-		auth.POST("/register", authCtrl.Register)
-		auth.POST("/login", authCtrl.Login)
-		auth.POST("/refresh", middlewares.AuthMiddleware(jwtSvc), authCtrl.RefreshToken)
-	}
+	auth.Post("/register", authCtrl.Register)
+	auth.Post("/login", authCtrl.Login)
+	auth.Post("/refresh", middlewares.AuthMiddleware(jwtSvc), authCtrl.RefreshToken)
 
-	user := api.Group("/users")
-	user.Use(middlewares.AuthMiddleware(jwtSvc))
-	{
-		user.PUT("/me", userCtrl.UpdateUser)
-		user.DELETE("/me", userCtrl.DeleteUser)
-		user.POST("/logout", authCtrl.Logout)
-	}
+	users := api.Group("/users", middlewares.AuthMiddleware(jwtSvc))
+	users.Put("/me", userCtrl.UpdateUser)
+	users.Delete("/me", userCtrl.DeleteUser)
+	users.Post("/logout", authCtrl.Logout)
 }
