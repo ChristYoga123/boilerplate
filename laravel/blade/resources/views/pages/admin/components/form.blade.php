@@ -187,8 +187,10 @@
                     <x-admin.form.file-input
                         name="avatar"
                         label="Foto Profil"
-                        hint="Preview gambar muncul sebelum submit."
+                        hint="Preview gambar muncul sebelum submit, file lama bisa ditandai untuk dihapus."
                         accept="image/*"
+                        :current-images="[asset('assets/admin/images/avatar/1.png')]"
+                        remove
                     />
 
                     <x-admin.form.file-input
@@ -199,6 +201,18 @@
                         multiple
                     />
                 </x-admin.form.grid>
+
+                <x-admin.form.file-input
+                    name="document"
+                    mode="file"
+                    label="Dokumen"
+                    hint="Mode file menampilkan nama dokumen, bukan thumbnail gambar."
+                    accept=".pdf,.doc,.docx,.xls,.xlsx"
+                    :current-files="[
+                        ['url' => '#', 'name' => 'proposal-lama.pdf', 'value' => 'proposal-lama.pdf'],
+                    ]"
+                    remove
+                />
 
                 <x-admin.form.rich-editor
                     name="body"
