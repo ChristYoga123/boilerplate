@@ -1,39 +1,27 @@
 @props([
-    'name',
-    'label' => null,
     'options' => [], // array of value => label
-    'value' => null,
-    'required' => false,
     'multiple' => false,
     'placeholder' => 'Pilih opsi...',
 ])
 
 @php
-    $inputId = $attributes->get('id', $name);
-    $hasError = $errors->has(str_replace('[]', '', $name));
-    $wrapperClasses = 'mb-3';
+    $field = \App\Support\AdminFormField::make($attributes);
+    $inputId = $field->id;
+    $hasError = $field->hasError($errors ?? null);
     
     // Normalize value for single/multi select
-    $oldValue = old(str_replace('[]', '', $name), $value);
+    $oldValue = $field->oldValue();
     $selectedArray = is_array($oldValue) ? $oldValue : (is_scalar($oldValue) ? [$oldValue] : []);
 @endphp
 
-<div class="{{ $wrapperClasses }}">
-    @if($label)
-        <label for="{{ $inputId }}" class="form-label">
-            {{ $label }}
-            @if($required)
-                <span class="text-danger">*</span>
-            @endif
-        </label>
-    @endif
-
+<x-admin.form.field :field="$field">
     <select
         id="{{ $inputId }}"
-        name="{{ $name }}"
+        name="{{ $field->name }}"
         @if($multiple) multiple @endif
-        @if($required) required @endif
-        {{ $attributes->class([
+        @if($field->required) required @endif
+        @if($field->disabled) disabled @endif
+        {{ $field->controlAttributes()->class([
             'form-select js-select2-component',
             'is-invalid border-danger' => $hasError,
         ]) }}
@@ -51,13 +39,7 @@
         
         {{ $slot }}
     </select>
-
-    @error(str_replace('[]', '', $name))
-        <div class="invalid-feedback d-block">
-            {{ $message }}
-        </div>
-    @enderror
-</div>
+</x-admin.form.field>
 
 @once
     @push('scripts')

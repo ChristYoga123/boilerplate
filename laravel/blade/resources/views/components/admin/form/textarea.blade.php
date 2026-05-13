@@ -1,38 +1,26 @@
 @props([
-    'name',
-    'label'    => null,
     'placeholder' => null,
-    'value'    => null,
-    'required' => false,
     'rows'     => 4,
 ])
 
 @php
-    $inputId  = $attributes->get('id', $name);
-    $hasError = $errors->has($name);
+    $field = \App\Support\AdminFormField::make($attributes);
+    $inputId = $field->id;
+    $hasError = $field->hasError($errors ?? null);
 @endphp
 
-<div class="mb-3">
-    @if($label)
-        <label for="{{ $inputId }}" class="form-label">
-            {{ $label }}
-            @if($required)<span class="text-danger">*</span>@endif
-        </label>
-    @endif
-
+<x-admin.form.field :field="$field">
     <textarea
         id="{{ $inputId }}"
-        name="{{ $name }}"
+        name="{{ $field->name }}"
         rows="{{ $rows }}"
         @if($placeholder) placeholder="{{ $placeholder }}" @endif
-        @if($required) required @endif
-        {{ $attributes->class([
+        @if($field->required) required @endif
+        @if($field->disabled) disabled @endif
+        @if($field->readonly) readonly @endif
+        {{ $field->controlAttributes()->class([
             'form-control',
             'is-invalid border-danger' => $hasError,
         ]) }}
-    >{{ old($name, $value) }}</textarea>
-
-    @error($name)
-        <div class="invalid-feedback d-block">{{ $message }}</div>
-    @enderror
-</div>
+    >{{ $field->oldValue() }}</textarea>
+</x-admin.form.field>

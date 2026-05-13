@@ -1,39 +1,55 @@
 @props([
-    'name',
-    'label' => null,
-    'id' => null,
+    'value' => '1',
 ])
 
 @php
-    $checkboxId = $id ?: $name;
-    $isChecked = old($name, $attributes->get('checked')) ? true : false;
+    $field = \App\Support\AdminFormField::make($attributes);
+    $checkboxId = $field->id;
+    $isChecked = old($field->errorName, $attributes->get('checked')) ? true : false;
+    $hasError = $field->hasError($errors ?? null);
+    $errorBag = $errors ?? null;
 @endphp
 
 <div class="form-check">
     <input
         id="{{ $checkboxId }}"
-        name="{{ $name }}"
+        name="{{ $field->name }}"
         type="checkbox"
-        value="1"
+        value="{{ $value }}"
         {{ $isChecked ? 'checked' : '' }}
-        {{ $attributes->class([
+        @if($field->required) required @endif
+        @if($field->disabled) disabled @endif
+        @if($field->readonly) readonly @endif
+        {{ $field->controlAttributes(['checked'])->class([
             'form-check-input',
-            'is-invalid' => $errors->has($name),
+            'is-invalid' => $hasError,
         ]) }}
     >
 
-    @if($label)
+    @if($field->label)
         <label class="form-check-label c-pointer" for="{{ $checkboxId }}">
-            {{ $label }}
+            {{ $field->label }}
+            @if($field->required)
+                <span class="text-danger">*</span>
+            @endif
         </label>
     @else
         {{ $slot }}
     @endif
 
-    @error($name)
-        <div class="invalid-feedback d-block">
-            {{ $message }}
+    @if($field->hint)
+        <div class="form-text">
+            {{ $field->hint }}
         </div>
-    @enderror
-</div>
+    @endif
 
+    @if(is_object($errorBag) && method_exists($errorBag, 'has'))
+        @foreach($field->errorNames as $errorName)
+            @if($errorBag->has($errorName))
+                <div class="invalid-feedback d-block">
+                    {{ $errorBag->first($errorName) }}
+                </div>
+            @endif
+        @endforeach
+    @endif
+</div>

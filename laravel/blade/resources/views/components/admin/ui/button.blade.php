@@ -19,6 +19,22 @@
         $attributes = new \Illuminate\View\ComponentAttributeBag($attrs);
     }
 
+    $attributes = $attributes->except([
+        'permission',
+        'as',
+        'type',
+        'variant',
+        'outline',
+        'size',
+        'href',
+        'modal',
+        'icon',
+        'block',
+        'class',
+        'title',
+        'attrs',
+    ]);
+
     // Ensure $slot is available
     if (!isset($slot) || (!($slot instanceof \Illuminate\Support\HtmlString) && !($slot instanceof \Illuminate\View\ComponentSlot))) {
         $slot = new \Illuminate\Support\HtmlString('');

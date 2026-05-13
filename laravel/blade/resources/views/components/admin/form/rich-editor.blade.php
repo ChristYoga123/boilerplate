@@ -21,19 +21,16 @@
 --}}
 
 @props([
-    'name',
-    'label'       => null,
-    'value'       => null,
-    'required'    => false,
     'placeholder' => 'Tulis konten di sini...',
     'height'      => 250,
 ])
 
 @php
-    $inputId    = $attributes->get('id', $name);
+    $field      = \App\Support\AdminFormField::make($attributes);
+    $inputId    = $field->id;
     $editorId   = 'quill-editor-' . $inputId;
-    $hasError   = $errors->has($name);
-    $oldValue   = old($name, $value ?? '');
+    $hasError   = $field->hasError($errors ?? null);
+    $oldValue   = $field->oldValue('');
 @endphp
 
 @once
@@ -42,19 +39,14 @@
     @endpush
 @endonce
 
-<div class="mb-3">
-    @if($label)
-        <label class="form-label">
-            {{ $label }}
-            @if($required)<span class="text-danger">*</span>@endif
-        </label>
-    @endif
-
+<x-admin.form.field :field="$field">
     {{-- Hidden textarea — submitted with the form --}}
     <textarea
         id="{{ $inputId }}"
-        name="{{ $name }}"
-        @if($required) required @endif
+        name="{{ $field->name }}"
+        @if($field->required) required @endif
+        @if($field->disabled) disabled @endif
+        @if($field->readonly) readonly @endif
         class="d-none"
         aria-hidden="true"
     >{{ $oldValue }}</textarea>
@@ -65,11 +57,7 @@
         style="height: {{ $height }}px;"
         class="bg-white {{ $hasError ? 'border border-danger rounded' : '' }}"
     ></div>
-
-    @error($name)
-        <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
-    @enderror
-</div>
+</x-admin.form.field>
 
 @once
     @push('scripts')

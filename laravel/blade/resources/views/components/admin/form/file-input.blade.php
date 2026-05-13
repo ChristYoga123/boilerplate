@@ -1,7 +1,4 @@
 @props([
-    'name',
-    'label' => null,
-    'required' => false,
     'accept' => 'image/*',
     'preview' => true,
     'multiple' => false, // Mendukung multiple upload
@@ -9,26 +6,19 @@
 ])
 
 @php
-    $inputId = $attributes->get('id', str_replace('[]', '', $name));
-    $errorName = str_replace('[]', '', $name);
-    $hasError = $errors->has($errorName) || $errors->has($errorName . '.*');
-    $wrapperClasses = 'mb-3';
+    $errorName = str_replace('[]', '', (string) $attributes->get('name'));
+    $field = \App\Support\AdminFormField::make($attributes, [
+        'errorNames' => $errorName === '' ? [] : [$errorName . '.*'],
+    ]);
+    $inputId = $field->id;
+    $hasError = $field->hasError($errors ?? null);
     $previewContainerId = 'preview-container-' . $inputId;
     
     // Normalisasi currentImages menjadi array
     $images = is_array($currentImages) ? $currentImages : (!empty($currentImages) ? [$currentImages] : []);
 @endphp
 
-<div class="{{ $wrapperClasses }}">
-    @if($label)
-        <label for="{{ $inputId }}" class="form-label">
-            {{ $label }}
-            @if($required)
-                <span class="text-danger">*</span>
-            @endif
-        </label>
-    @endif
-
+<x-admin.form.field :field="$field">
     @if($preview)
         <div id="{{ $previewContainerId }}" class="mb-2 d-flex flex-wrap gap-2" style="{{ empty($images) ? 'display: none;' : '' }}">
             @foreach($images as $img)
@@ -39,12 +29,13 @@
 
     <input
         id="{{ $inputId }}"
-        name="{{ $name }}"
+        name="{{ $field->name }}"
         type="file"
         @if($multiple) multiple @endif
         @if($accept) accept="{{ $accept }}" @endif
-        @if($required) required @endif
-        {{ $attributes->class([
+        @if($field->required) required @endif
+        @if($field->disabled) disabled @endif
+        {{ $field->controlAttributes()->class([
             'form-control',
             'is-invalid border-danger' => $hasError,
         ]) }}
@@ -52,14 +43,7 @@
             onchange="previewMultipleImagesComponent(this, '{{ $previewContainerId }}')"
         @endif
     >
-
-    @error($errorName)
-        <div class="invalid-feedback d-block">{{ $message }}</div>
-    @enderror
-    @error($errorName . '.*')
-        <div class="invalid-feedback d-block">{{ $message }}</div>
-    @enderror
-</div>
+</x-admin.form.field>
 
 @if($preview)
     @once
