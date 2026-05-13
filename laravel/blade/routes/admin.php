@@ -25,6 +25,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 ['label' => 'Form Components', 'active' => true],
             ],
         ])->name('form-components');
+        Route::view('/table-components', 'pages.admin.components.table', [
+            'title' => 'Table Components',
+            'breadcrumbs' => [
+                ['label' => 'Home', 'url' => '/admin'],
+                ['label' => 'Table Components', 'active' => true],
+            ],
+        ])->name('table-components');
+        Route::view('/ui-components', 'pages.admin.components.ui', [
+            'title' => 'UI Components',
+            'breadcrumbs' => [
+                ['label' => 'Home', 'url' => '/admin'],
+                ['label' => 'UI Components', 'active' => true],
+            ],
+        ])->name('ui-components');
 
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');

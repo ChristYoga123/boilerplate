@@ -22,8 +22,13 @@
 @endif
 
 <script>
-    (function () {
+    (function initAdminDeleteButton() {
         if (window.__adminDeleteButtonInit) return;
+        if (!window.jQuery || typeof window.Swal === 'undefined') {
+            window.setTimeout(initAdminDeleteButton, 50);
+            return;
+        }
+
         window.__adminDeleteButtonInit = true;
 
         $(document).on('click', '.js-delete', function () {

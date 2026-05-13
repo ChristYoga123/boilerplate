@@ -35,6 +35,16 @@ return [
                 'icon' => 'feather-edit-3',
                 'route' => 'admin.form-components',
             ],
+            [
+                'title' => 'Table Components',
+                'icon' => 'feather-table',
+                'route' => 'admin.table-components',
+            ],
+            [
+                'title' => 'UI Components',
+                'icon' => 'feather-grid',
+                'route' => 'admin.ui-components',
+            ],
         ],
     ]
 ];

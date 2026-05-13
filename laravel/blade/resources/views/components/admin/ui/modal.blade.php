@@ -51,3 +51,13 @@
         </div>
     </div>
 </div>
+
+@pushOnce('scripts')
+    <script>
+        $(document).on('show.bs.modal', '.modal', function () {
+            if (this.parentElement !== document.body) {
+                document.body.appendChild(this);
+            }
+        });
+    </script>
+@endPushOnce
