@@ -8,6 +8,7 @@
     $field = \App\Support\AdminFormField::make($attributes);
     $inputId = $field->id;
     $hasError = $field->hasError($errors ?? null);
+    $sizeClass = $field->size ? 'form-select-' . $field->size : null;
     
     // Normalize value for single/multi select
     $oldValue = $field->oldValue();
@@ -23,6 +24,7 @@
         @if($field->disabled) disabled @endif
         {{ $field->controlAttributes()->class([
             'form-select js-select2-component',
+            $sizeClass,
             'is-invalid border-danger' => $hasError,
         ]) }}
         data-placeholder="{{ $placeholder }}"

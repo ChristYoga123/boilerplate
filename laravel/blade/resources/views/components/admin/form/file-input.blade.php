@@ -12,6 +12,7 @@
     ]);
     $inputId = $field->id;
     $hasError = $field->hasError($errors ?? null);
+    $sizeClass = $field->size ? 'form-control-' . $field->size : null;
     $previewContainerId = 'preview-container-' . $inputId;
     
     // Normalisasi currentImages menjadi array
@@ -37,6 +38,7 @@
         @if($field->disabled) disabled @endif
         {{ $field->controlAttributes()->class([
             'form-control',
+            $sizeClass,
             'is-invalid border-danger' => $hasError,
         ]) }}
         @if($preview)

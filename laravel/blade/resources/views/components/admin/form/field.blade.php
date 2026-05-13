@@ -8,7 +8,7 @@
 ])
 
 @php
-    $for = $for ?? $field->id;
+    $for = $for === false ? null : ($for ?? $field->id);
     $label = $label ?? $field->label;
     $hint = $hint ?? $field->hint;
     $required = $required ?? $field->required;
@@ -18,7 +18,7 @@
 
 <div class="{{ $field->wrapperClass }}">
     @if($label)
-        <label for="{{ $for }}" class="form-label">
+        <label @if($for) for="{{ $for }}" @endif class="form-label">
             {{ $label }}
             @if($required)
                 <span class="text-danger">*</span>

@@ -10,10 +10,16 @@
     $inputId = $field->id;
     $isPassword = $type === 'password';
     $hasError = $field->hasError($errors ?? null);
+    $hasGroup = ($isPassword && $revealable) || $field->prefix || $field->suffix;
+    $sizeClass = $field->size ? 'form-control-' . $field->size : null;
 @endphp
 
 <x-admin.form.field :field="$field">
-    <div class="{{ $isPassword && $revealable ? 'input-group' : '' }}">
+    <div class="{{ $hasGroup ? 'input-group' : '' }}">
+        @if($field->prefix)
+            <span class="input-group-text">{{ $field->prefix }}</span>
+        @endif
+
         <input
             id="{{ $inputId }}"
             name="{{ $field->name }}"
@@ -26,9 +32,14 @@
             @if($field->readonly) readonly @endif
             {{ $field->controlAttributes()->class([
                 'form-control',
+                $sizeClass,
                 'is-invalid border-danger' => $hasError,
             ]) }}
         >
+
+        @if($field->suffix)
+            <span class="input-group-text">{{ $field->suffix }}</span>
+        @endif
 
         @if($isPassword && $revealable)
             <button

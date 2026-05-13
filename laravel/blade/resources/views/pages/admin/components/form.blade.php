@@ -12,6 +12,12 @@
         'active' => 'Aktif',
         'archived' => 'Arsip',
     ];
+
+    $typeOptions = [
+        'personal' => 'Personal',
+        'company' => 'Perusahaan',
+        'partner' => 'Partner',
+    ];
 @endphp
 
 @section('content')
@@ -76,6 +82,90 @@
                     name="is_active"
                     label="Aktifkan data ini"
                     hint="Checkbox juga mendukung hint dan error global."
+                />
+            </x-admin.form.container>
+        </x-admin.form.section>
+    </div>
+
+    <div class="col-lg-12">
+        <x-admin.form.section
+            title="Field Props & Input Variants"
+            description="Contoh props global dan field yang sering dipakai di form operasional."
+        >
+            <x-admin.form.container
+                :action="route('admin.form-components')"
+                method="GET"
+                :show-cancel="false"
+                submit-label="Preview Variants"
+            >
+                <x-admin.form.grid cols="3">
+                    <x-admin.form.date-input
+                        name="started_at"
+                        label="Tanggal Mulai"
+                        hint="Date input memakai wrapper global yang sama."
+                        required
+                    />
+
+                    <x-admin.form.number-input
+                        name="stock"
+                        label="Stok"
+                        min="0"
+                        step="1"
+                        suffix="pcs"
+                        hint="Ketik 1000000, tampilan menjadi 1.000.000."
+                        required
+                    />
+
+                    <x-admin.form.money-input
+                        name="price"
+                        label="Harga"
+                        hint="Prefix default money adalah Rp."
+                        min="0"
+                        step="500"
+                        required
+                    />
+                </x-admin.form.grid>
+
+                <x-admin.form.grid cols="2">
+                    <x-admin.form.number-input
+                        name="weight"
+                        label="Berat"
+                        decimal-scale="2"
+                        suffix="kg"
+                        hint="Decimal memakai koma, misalnya 1.250,75."
+                    />
+
+                    <x-admin.form.money-input
+                        name="price_decimal"
+                        label="Harga Decimal"
+                        decimal-scale="2"
+                        step="0.01"
+                        hint="Nilai submit tetap raw decimal seperti 1250.75."
+                    />
+                </x-admin.form.grid>
+
+                <x-admin.form.grid cols="2">
+                    <x-admin.form.text-input
+                        name="code"
+                        label="Kode"
+                        prefix="#"
+                        size="sm"
+                        placeholder="USR-001"
+                    />
+
+                    <x-admin.form.radio-group
+                        name="account_type"
+                        label="Tipe Akun"
+                        :options="$typeOptions"
+                        inline
+                        required
+                    />
+                </x-admin.form.grid>
+
+                <x-admin.form.switch
+                    name="send_notification"
+                    label="Kirim notifikasi setelah submit"
+                    hint="Switch cocok untuk pilihan aktif/nonaktif."
                 />
             </x-admin.form.container>
         </x-admin.form.section>
@@ -248,6 +338,84 @@
                     </x-admin.form.wizard-step>
                 </x-admin.form.wizard>
             </x-admin.form.container>
+        </x-admin.form.section>
+    </div>
+
+    <div class="col-lg-12">
+        <x-admin.form.section
+            title="Index UI Helpers"
+            description="Komponen kecil untuk halaman index, table toolbar, status, dan empty state."
+        >
+            <x-admin.ui.action-bar
+                title="Daftar Pengguna"
+                description="Action bar menyatukan judul kecil, filter, dan command utama."
+            >
+                <x-admin.ui.badge variant="success" soft icon="feather-check-circle">
+                    24 Aktif
+                </x-admin.ui.badge>
+
+                <x-admin.ui.dropdown-action label="Export" icon="feather-download">
+                    <a href="javascript:void(0);" class="dropdown-item">
+                        <i class="feather-file-text me-2"></i>CSV
+                    </a>
+                    <a href="javascript:void(0);" class="dropdown-item">
+                        <i class="feather-file me-2"></i>Excel
+                    </a>
+                </x-admin.ui.dropdown-action>
+
+                <x-admin.ui.button icon="feather-plus">
+                    Tambah Data
+                </x-admin.ui.button>
+            </x-admin.ui.action-bar>
+
+            <div class="table-responsive mb-4">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nama</th>
+                            <th>Status</th>
+                            <th class="text-end">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">Admin Demo</div>
+                                <div class="fs-12 text-muted">admin@example.test</div>
+                            </td>
+                            <td>
+                                <x-admin.ui.badge variant="success" soft>Aktif</x-admin.ui.badge>
+                            </td>
+                            <td class="text-end">
+                                <x-admin.ui.dropdown-action
+                                    label=""
+                                    icon="feather-more-vertical"
+                                    variant="light"
+                                    button-class="btn-sm"
+                                >
+                                    <a href="javascript:void(0);" class="dropdown-item">
+                                        <i class="feather-edit-3 me-2"></i>Edit
+                                    </a>
+                                    <a href="javascript:void(0);" class="dropdown-item text-danger">
+                                        <i class="feather-trash-2 me-2"></i>Hapus
+                                    </a>
+                                </x-admin.ui.dropdown-action>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <x-admin.ui.empty-state
+                title="Belum ada data"
+                description="Empty state dipakai saat index kosong, hasil filter nihil, atau user belum membuat data pertama."
+                icon="feather-inbox"
+                class="border rounded"
+            >
+                <x-admin.ui.button icon="feather-plus">
+                    Tambah Data
+                </x-admin.ui.button>
+            </x-admin.ui.empty-state>
         </x-admin.form.section>
     </div>
 @endsection

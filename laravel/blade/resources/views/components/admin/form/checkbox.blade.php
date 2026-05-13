@@ -19,7 +19,6 @@
         {{ $isChecked ? 'checked' : '' }}
         @if($field->required) required @endif
         @if($field->disabled) disabled @endif
-        @if($field->readonly) readonly @endif
         {{ $field->controlAttributes(['checked'])->class([
             'form-check-input',
             'is-invalid' => $hasError,

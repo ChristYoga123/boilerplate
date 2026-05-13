@@ -1,6 +1,7 @@
 @props([
-    'placeholder' => null,
-    'rows'     => 4,
+    'type' => 'date',
+    'min' => null,
+    'max' => null,
 ])
 
 @php
@@ -11,11 +12,13 @@
 @endphp
 
 <x-admin.form.field :field="$field">
-    <textarea
+    <input
         id="{{ $inputId }}"
         name="{{ $field->name }}"
-        rows="{{ $rows }}"
-        @if($placeholder) placeholder="{{ $placeholder }}" @endif
+        type="{{ $type }}"
+        @if($min) min="{{ $min }}" @endif
+        @if($max) max="{{ $max }}" @endif
+        value="{{ $field->oldValue() }}"
         @if($field->required) required @endif
         @if($field->disabled) disabled @endif
         @if($field->readonly) readonly @endif
@@ -24,5 +27,5 @@
             $sizeClass,
             'is-invalid border-danger' => $hasError,
         ]) }}
-    >{{ $field->oldValue() }}</textarea>
+    >
 </x-admin.form.field>
