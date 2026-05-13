@@ -25,5 +25,16 @@ return [
                 'can' => ['roles.index'],
             ],
         ],
+    ],
+    [
+        'title' => 'Boilerplate',
+        'icon' => 'feather-layers',
+        'children' => [
+            [
+                'title' => 'Form Components',
+                'icon' => 'feather-edit-3',
+                'route' => 'admin.form-components',
+            ],
+        ],
     ]
 ];

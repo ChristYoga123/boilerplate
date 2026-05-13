@@ -18,6 +18,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(AuthMiddleware::class)->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+        Route::view('/form-components', 'pages.admin.components.form', [
+            'title' => 'Form Components',
+            'breadcrumbs' => [
+                ['label' => 'Home', 'url' => '/admin'],
+                ['label' => 'Form Components', 'active' => true],
+            ],
+        ])->name('form-components');
 
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -46,7 +46,7 @@
 @endphp
 
 <div
-    class="mb-4"
+    class="admin-form-repeater mb-4"
     id="{{ $repeaterId }}"
     data-repeater
     data-repeater-name="{{ $name }}"
@@ -59,7 +59,7 @@
     @endif
 
     {{-- Rows injected here by JS --}}
-    <div data-repeater-list class="d-flex flex-column gap-3"></div>
+    <div data-repeater-list class="admin-form-repeater__list"></div>
 
     {{--
         Row template — inside <template>, not part of the live DOM.
@@ -67,22 +67,76 @@
         and auto-prefixes every [name] as  repeaterName[index][field].
     --}}
     <template data-repeater-template>
-        <div data-repeater-row class="border rounded p-3 bg-light">
-            {{ $slot }}
-            <div class="d-flex justify-content-end mt-2">
-                <button type="button" data-repeater-remove class="btn btn-sm btn-outline-danger">
-                    <i class="feather-trash-2 me-1"></i>Hapus
-                </button>
+        <div data-repeater-row class="admin-form-repeater__row">
+            <button
+                type="button"
+                data-repeater-remove
+                class="btn btn-sm btn-outline-danger admin-form-repeater__remove"
+                title="Hapus"
+                aria-label="Hapus item"
+            >
+                <i class="feather-trash-2"></i>
+            </button>
+
+            <div class="admin-form-repeater__content">
+                {{ $slot }}
             </div>
         </div>
     </template>
 
-    <div class="mt-2">
+    <div class="admin-form-repeater__actions">
         <button type="button" data-repeater-add class="btn btn-sm btn-outline-primary">
             <i class="feather-plus me-1"></i>{{ $addLabel }}
         </button>
     </div>
 </div>
+
+@once
+    @push('styles')
+        <style>
+            .admin-form-repeater__list {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .admin-form-repeater__row {
+                background: #f8fafc;
+                border: 1px solid #dfe5ec;
+                border-radius: .5rem;
+                padding: 1.25rem;
+                padding-top: 1.75rem;
+                position: relative;
+            }
+
+            .admin-form-repeater__row:hover {
+                border-color: #c6d0dc;
+            }
+
+            .admin-form-repeater__remove {
+                align-items: center;
+                background: #fff;
+                display: inline-flex;
+                height: 2rem;
+                justify-content: center;
+                padding: 0;
+                position: absolute;
+                right: .75rem;
+                top: .75rem;
+                width: 2rem;
+                z-index: 2;
+            }
+
+            .admin-form-repeater__content {
+                padding-top: .25rem;
+            }
+
+            .admin-form-repeater__actions {
+                margin-top: .875rem;
+            }
+        </style>
+    @endpush
+@endonce
 
 @push('scripts')
 <script>

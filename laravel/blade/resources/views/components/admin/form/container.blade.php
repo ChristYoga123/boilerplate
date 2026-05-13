@@ -16,6 +16,8 @@
     $htmlMethod = $isGet ? 'GET' : 'POST';
     $cancelUrl = $cancelUrl ?? url()->previous();
     $hasCustomFooter = isset($footer) && trim((string) $footer) !== '';
+    $hasWizard = str_contains((string) $slot, 'data-form-wizard');
+    $shouldShowFooter = $showFooter && ($hasCustomFooter || ! $hasWizard);
 @endphp
 
 <form
@@ -34,7 +36,7 @@
 
     {{ $slot }}
 
-    @if($showFooter)
+    @if($shouldShowFooter)
         @if($hasCustomFooter)
             {{ $footer }}
         @else
